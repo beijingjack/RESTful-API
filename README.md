@@ -60,7 +60,7 @@ Here are some example queries and what they would return:
 http://localhost:4000/api/users?sort={"name": 1}&skip=60&limit=20
 ```
 
-Here is the User Schema:
+Here is the Users Schema:
 
 1. "name" - String
 2. "email" - String
