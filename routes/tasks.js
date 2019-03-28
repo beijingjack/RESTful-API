@@ -1,23 +1,23 @@
 const express = require("express");
 const router = express.Router();
 
-const Users = require("../models/user");
+const Tasks = require("../models/task");
 
-// users GET
+// tasks GET
 router.get("/", (req, res) => {
-  Users.find()
+  Tasks.find()
     .exec()
-    .then(users => {
+    .then(tasks => {
       res.status(200).json({
         message: "OK",
-        data: users.map(user => {
+        data: tasks.map(task => {
           return {
-            _id: user._id,
-            name: user.name,
-            email: user.email,
+            _id: task._id,
+            name: task.name,
+            email: task.email,
             request: {
               type: "GET",
-              url: `http://localhost:4000/api/users/${user._id}`
+              url: `http://localhost:4000/api/tasks/${task._id}`
             }
           };
         })
@@ -31,20 +31,20 @@ router.get("/", (req, res) => {
     });
 });
 
-// users POST
+// tasks POST
 router.post("/", (req, res) => {
-  const user = new Users({
+  const task = new Tasks({
     name: req.body.name,
     email: req.body.email,
     pendingTasks: req.body.pendingTasks,
     dateCreated: new Date()
   });
-  user
+  task
     .save()
     .then(result => {
       console.log(result);
       res.status(201).json({
-        message: "User created",
+        message: "Task created",
         data: {
           _id: result._id,
           name: result.name,
@@ -58,7 +58,7 @@ router.post("/", (req, res) => {
     })
     .catch(err => {
       res.status(500).json({
-        message: "User failed to create",
+        message: "Task failed to create",
         data: {
           error: err.errors
         }
@@ -66,55 +66,55 @@ router.post("/", (req, res) => {
     });
 });
 
-// users/:id GET
+// tasks/:id GET
 router.get("/:id", (req, res) => {
   const id = req.params.id;
-  Users.findById(id)
+  Tasks.findById(id)
     .exec()
-    .then(user => {
-      console.log(user);
+    .then(task => {
+      console.log(task);
       res.status(200).json({
         message: "OK",
         data: {
-          _id: user._id,
-          name: user.name,
-          email: user.email,
-          pendingTasks: user.pendingTasks
-            ? user.pendingTasks
+          _id: task._id,
+          name: task.name,
+          email: task.email,
+          pendingTasks: task.pendingTasks
+            ? task.pendingTasks
             : "No pending tasks",
-          dateCreated: user.dateCreated
+          dateCreated: task.dateCreated
         }
       });
     })
     .catch(err => {
       console.log(err);
       res.status(404).json({
-        message: "User not found",
+        message: "Task not found",
         data: err
       });
     });
 });
 
-// users/:id DELETE
+// tasks/:id DELETE
 router.delete("/:id", (req, res) => {
   const id = req.params.id;
-  Users.findByIdAndRemove(id)
+  Tasks.findByIdAndRemove(id)
     .exec()
-    .then(user => {
-      console.log(user);
+    .then(task => {
+      console.log(task);
       res.status(200).json({
-        message: "User deleted",
+        message: "Task deleted",
         data: {
-          _id: user._id,
-          name: user.name,
-          email: user.email
+          _id: task._id,
+          name: task.name,
+          email: task.email
         }
       });
     })
     .catch(err => {
       console.log(err);
       res.status(404).json({
-        message: "User not found",
+        message: "Task not found",
         data: err
       });
     });
