@@ -3,8 +3,8 @@ var mongoose = require('mongoose');
 
 // Define our user schema
 var UserSchema = new mongoose.Schema({
-    name: String,
-    email: String,
+    name: {type: String, required: true},
+    email: {type: String, required: true},
     pendingTasks: [String],
     dateCreated: Date
 });
