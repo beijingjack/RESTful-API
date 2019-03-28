@@ -21,7 +21,6 @@ router.get("/", (req, res) => {
 
 // users POST
 router.post('/', (req, res) => {
-  console.log("here");
   const user = new Users({
     name: req.body.name,
     email: req.body.email,
