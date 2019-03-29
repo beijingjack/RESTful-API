@@ -43,14 +43,8 @@ router.get("/", (req, res) => {
                 _id: user._id,
                 name: user.name,
                 email: user.email,
-                pendingTasks: user.pendingTasks
-                  ? user.pendingTasks
-                  : "No pending tasks",
+                pendingTasks: user.pendingTask,
                 dateCreated: user.dateCreated
-                // request: {
-                //   type: "GET",
-                //   url: `http://localhost:4000/api/users/${user._id}`
-                // }
               };
             })
       });
@@ -74,16 +68,13 @@ router.post("/", (req, res) => {
   user
     .save()
     .then(result => {
-      console.log(result);
       res.status(201).json({
         message: "User created",
         data: {
           _id: result._id,
           name: result.name,
           email: result.email,
-          pendingTasks: result.pendingTasks
-            ? result.pendingTasks
-            : "No pending tasks",
+          pendingTasks: result.pendingTasks,
           dateCreated: result.dateCreated
         }
       });
@@ -104,22 +95,44 @@ router.get("/:id", (req, res) => {
   Users.findById(id)
     .exec()
     .then(user => {
-      console.log(user);
       res.status(200).json({
         message: "OK",
         data: {
           _id: user._id,
           name: user.name,
           email: user.email,
-          pendingTasks: user.pendingTasks
-            ? user.pendingTasks
-            : "No pending tasks",
+          pendingTasks: user.pendingTasks,
           dateCreated: user.dateCreated
         }
       });
     })
     .catch(err => {
-      console.log(err);
+      res.status(404).json({
+        message: "User not found",
+        data: err
+      });
+    });
+});
+
+// users/:id PUT
+router.put("/:id", (req, res) => {
+  const id = req.params.id;
+  const updateUser = req.body;
+  Users.findByIdAndUpdate(id, updateUser, {new:true})
+    .exec()
+    .then(user => {
+      res.status(200).json({
+        message: "User updated",
+        data: {
+          _id: user._id,
+          name: user.name,
+          email: user.email,
+          pendingTasks: user.pendingTasks,
+          dateCreated: user.dateCreated
+        }
+      });
+    })
+    .catch(err => {
       res.status(404).json({
         message: "User not found",
         data: err
@@ -133,7 +146,6 @@ router.delete("/:id", (req, res) => {
   Users.findByIdAndRemove(id)
     .exec()
     .then(user => {
-      console.log(user);
       res.status(200).json({
         message: "User deleted",
         data: {
@@ -144,7 +156,6 @@ router.delete("/:id", (req, res) => {
       });
     })
     .catch(err => {
-      console.log(err);
       res.status(404).json({
         message: "User not found",
         data: err

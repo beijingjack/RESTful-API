@@ -39,20 +39,17 @@ router.get("/", (req, res) => {
         data: count
           ? { count: tasks.length }
           : tasks.map(task => {
-            return {
-              _id: task._id,
-              name: task.name,
-              email: task.email,
-              pendingTasks: task.pendingTasks
-                ? task.pendingTasks
-                : "No pending tasks",
-              dateCreated: task.dateCreated
-              // request: {
-              //   type: "GET",
-              //   url: `http://localhost:4000/api/tasks/${task._id}`
-              // }
-            };
-          })
+              return {
+                _id: task._id,
+                name: task.name,
+                description: task.description,
+                deadline: task.deadline,
+                completed: task.completed,
+                assignedUser: task.assignedUser,
+                assignedUserName: task.assignedUserName,
+                dateCreated: task.dateCreated
+              };
+            })
       });
     })
     .catch(err => {
@@ -67,23 +64,28 @@ router.get("/", (req, res) => {
 router.post("/", (req, res) => {
   const task = new Tasks({
     name: req.body.name,
-    email: req.body.email,
-    pendingTasks: req.body.pendingTasks,
+    description: req.body.description,
+    deadline: req.body.deadline,
+    completed: req.body.completed,
+    assignedUser: req.body.assignedUser ? req.body.assignedUser : "",
+    assignedUserName: req.body.assignedUserName
+      ? req.body.assignedUserName
+      : "unassigned",
     dateCreated: new Date()
   });
   task
     .save()
     .then(result => {
-      console.log(result);
       res.status(201).json({
         message: "Task created",
         data: {
           _id: result._id,
           name: result.name,
-          email: result.email,
-          pendingTasks: result.pendingTasks
-            ? result.pendingTasks
-            : "No pending tasks",
+          description: result.description,
+          deadline: result.deadline,
+          completed: result.completed,
+          assignedUser: result.assignedUser,
+          assignedUserName: result.assignedUserName,
           dateCreated: result.dateCreated
         }
       });
@@ -104,22 +106,50 @@ router.get("/:id", (req, res) => {
   Tasks.findById(id)
     .exec()
     .then(task => {
-      console.log(task);
       res.status(200).json({
         message: "OK",
         data: {
           _id: task._id,
           name: task.name,
-          email: task.email,
-          pendingTasks: task.pendingTasks
-            ? task.pendingTasks
-            : "No pending tasks",
+          description: task.description,
+          deadline: task.deadline,
+          completed: task.completed,
+          assignedUser: task.assignedUser,
+          assignedUserName: task.assignedUserName,
           dateCreated: task.dateCreated
         }
       });
     })
     .catch(err => {
-      console.log(err);
+      res.status(404).json({
+        message: "Task not found",
+        data: err
+      });
+    });
+});
+
+// tasks/:id PUT
+router.put("/:id", (req, res) => {
+  const id = req.params.id;
+  const updateTask = req.body;
+  Tasks.findByIdAndUpdate(id, updateTask, {new:true})
+    .exec()
+    .then(task => {
+      res.status(200).json({
+        message: "Task updated",
+        data: {
+          _id: task._id,
+          name: task.name,
+          description: task.description,
+          deadline: task.deadline,
+          completed: task.completed,
+          assignedUser: task.assignedUser,
+          assignedUserName: task.assignedUserName,
+          dateCreated: task.dateCreated
+        }
+      });
+    })
+    .catch(err => {
       res.status(404).json({
         message: "Task not found",
         data: err
@@ -133,18 +163,21 @@ router.delete("/:id", (req, res) => {
   Tasks.findByIdAndRemove(id)
     .exec()
     .then(task => {
-      console.log(task);
       res.status(200).json({
         message: "Task deleted",
         data: {
           _id: task._id,
           name: task.name,
-          email: task.email
+          description: task.description,
+          deadline: task.deadline,
+          completed: task.completed,
+          assignedUser: task.assignedUser,
+          assignedUserName: task.assignedUserName,
+          dateCreated: task.dateCreated
         }
       });
     })
     .catch(err => {
-      console.log(err);
       res.status(404).json({
         message: "Task not found",
         data: err
