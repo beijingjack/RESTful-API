@@ -5,22 +5,54 @@ const Users = require("../models/user");
 
 // users GET
 router.get("/", (req, res) => {
-  Users.find()
+  const queries = req.query;
+  // Get all keys
+  const keys = Object.keys(queries);
+  let where, sort, select, skip, limit, count;
+  if (keys.includes("where")) {
+    where = JSON.parse(queries.where);
+  }
+  if (keys.includes("sort")) {
+    sort = JSON.parse(queries.sort);
+  }
+  if (keys.includes("select")) {
+    select = JSON.parse(queries.select);
+  }
+  if (keys.includes("skip")) {
+    skip = JSON.parse(queries.skip);
+  }
+  if (keys.includes("limit")) {
+    limit = JSON.parse(queries.limit);
+  }
+  if (keys.includes("count")) {
+    count = JSON.parse(queries.count);
+  }
+  Users.find(where)
+    .sort(sort)
+    .skip(skip)
+    .limit(limit)
+    .select(select)
     .exec()
     .then(users => {
       res.status(200).json({
         message: "OK",
-        data: users.map(user => {
-          return {
-            _id: user._id,
-            name: user.name,
-            email: user.email,
-            request: {
-              type: "GET",
-              url: `http://localhost:4000/api/users/${user._id}`
-            }
-          };
-        })
+        data: count
+          ? { count: users.length }
+          : users.map(user => {
+              return {
+                _id: user._id,
+                name: user.name,
+                email: user.email,
+                pendingTasks: user.pendingTasks
+                  ? user.pendingTasks
+                  : "No pending tasks",
+                dateCreated: user.dateCreated
+                // request: {
+                //   type: "GET",
+                //   url: `http://localhost:4000/api/users/${user._id}`
+                // }
+              };
+            })
       });
     })
     .catch(err => {
