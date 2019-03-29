@@ -65,28 +65,36 @@ router.post("/", (req, res) => {
     pendingTasks: req.body.pendingTasks,
     dateCreated: new Date()
   });
-  user
-    .save()
-    .then(result => {
-      res.status(201).json({
-        message: "User created",
-        data: {
-          _id: result._id,
-          name: result.name,
-          email: result.email,
-          pendingTasks: result.pendingTasks,
-          dateCreated: result.dateCreated
-        }
-      });
-    })
-    .catch(err => {
-      res.status(500).json({
+  Users.countDocuments({ email: req.body.email }, (err, count) => {
+    if (count > 0) {
+      return res.status(500).json({
         message: "User failed to create",
-        data: {
-          error: err.errors
-        }
+        data: "Email has already been used"
       });
-    });
+    }
+    user
+      .save()
+      .then(result => {
+        res.status(201).json({
+          message: "User created",
+          data: {
+            _id: result._id,
+            name: result.name,
+            email: result.email,
+            pendingTasks: result.pendingTasks,
+            dateCreated: result.dateCreated
+          }
+        });
+      })
+      .catch(err => {
+        res.status(500).json({
+          message: "User failed to create",
+          data: {
+            error: err.errors
+          }
+        });
+      });
+  });
 });
 
 // users/:id GET
@@ -118,7 +126,7 @@ router.get("/:id", (req, res) => {
 router.put("/:id", (req, res) => {
   const id = req.params.id;
   const updateUser = req.body;
-  Users.findByIdAndUpdate(id, updateUser, {new:true})
+  Users.findByIdAndUpdate(id, updateUser, { new: true })
     .exec()
     .then(user => {
       res.status(200).json({
