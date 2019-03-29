@@ -5,22 +5,54 @@ const Tasks = require("../models/task");
 
 // tasks GET
 router.get("/", (req, res) => {
-  Tasks.find()
+  const queries = req.query;
+  // Get all keys
+  const keys = Object.keys(queries);
+  let where, sort, select, skip, limit, count;
+  if (keys.includes("where")) {
+    where = JSON.parse(queries.where);
+  }
+  if (keys.includes("sort")) {
+    sort = JSON.parse(queries.sort);
+  }
+  if (keys.includes("select")) {
+    select = JSON.parse(queries.select);
+  }
+  if (keys.includes("skip")) {
+    skip = JSON.parse(queries.skip);
+  }
+  if (keys.includes("limit")) {
+    limit = JSON.parse(queries.limit);
+  }
+  if (keys.includes("count")) {
+    count = JSON.parse(queries.count);
+  }
+  Tasks.find(where)
+    .sort(sort)
+    .skip(skip)
+    .limit(limit)
+    .select(select)
     .exec()
     .then(tasks => {
       res.status(200).json({
         message: "OK",
-        data: tasks.map(task => {
-          return {
-            _id: task._id,
-            name: task.name,
-            email: task.email,
-            request: {
-              type: "GET",
-              url: `http://localhost:4000/api/tasks/${task._id}`
-            }
-          };
-        })
+        data: count
+          ? { count: tasks.length }
+          : tasks.map(task => {
+            return {
+              _id: task._id,
+              name: task.name,
+              email: task.email,
+              pendingTasks: task.pendingTasks
+                ? task.pendingTasks
+                : "No pending tasks",
+              dateCreated: task.dateCreated
+              // request: {
+              //   type: "GET",
+              //   url: `http://localhost:4000/api/tasks/${task._id}`
+              // }
+            };
+          })
       });
     })
     .catch(err => {
