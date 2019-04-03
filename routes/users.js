@@ -43,7 +43,7 @@ router.get("/", (req, res) => {
                 _id: user._id,
                 name: user.name,
                 email: user.email,
-                pendingTasks: user.pendingTask,
+                pendingTasks: user.pendingTasks,
                 dateCreated: user.dateCreated
               };
             })
